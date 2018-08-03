@@ -1,0 +1,3 @@
+include README.md
+graft sit/template
+global-exclude *.pyc
