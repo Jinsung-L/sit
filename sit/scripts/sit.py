@@ -15,7 +15,9 @@ def cli(ctx, debug):
 
 
 from .create import create
+from .init import init
 cli.add_command(create)
+cli.add_command(init)
 
 
 if __name__ == '__main__':

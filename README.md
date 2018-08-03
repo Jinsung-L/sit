@@ -7,7 +7,6 @@
 ```sh
 sit create my-app
 cd my-app
-source venv/bin/activate
 sit init
 sit deploy
 ```
@@ -80,6 +79,30 @@ Open [http://localhost:5000](http://localhost:5000) to view it in the browser.
 The page will automatically reload if you make changes to the code.
 
 ### `sit init`
+
+### `sit deploy`
+
+### Working with your application
+
+Although you can run `flask run` command without having to activate the `venv` `sit` created inside your project folder, we recommend you to activate the `venv` inside the project folder when you're developing your application.<br />
+This is because when your application depends on eternal dependencies, they should be added within the `venv` **inside your project folder**.<br /> So, inside the project folder:
+
+```sh
+source venv/bin/activate
+```
+
+Then install any external dependencies using pip:
+
+```sh
+pip install package-you-need
+```
+
+And it will work on development run `flask run` and be deployed when `sit deploy`.
+
+### Working with your old projects
+
+`sit` can be used to deploy your old flask projects too.<br />
+As long as they are packed in a package, you can `sit init` and then `sit deploy`.
 
 
 ## License

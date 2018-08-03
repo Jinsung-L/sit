@@ -24,9 +24,10 @@ def render_template(filepath, **kwargs):
 @click.option('--debug/--no-debug', default=False)
 @click.pass_context
 def create(ctx, name, debug):
+    """Create sit smaple project from template."""
     DEBUG = ctx.obj['DEBUG'] or debug
     MODULE_PATH = ctx.obj['MODULE_PATH']
-    TEMPLATE_PATH = ctx.obj['MODULE_PATH'] / 'template'
+    TEMPLATE_PATH = ctx.obj['MODULE_PATH'] / 'templates' / 'local'
 
     PROJECT_PATH = Path(name)
 
@@ -84,7 +85,6 @@ Inside that directory, you can run several commands:
 We suggest that you begin by typing:
 
   {cd} {project_name}
-  {source} venv/bin/activate
   {sit_init}
   {sit_deploy}
 

@@ -13,6 +13,8 @@ setup(
         'console_scripts': ['sit=sit.scripts.sit:cli'],
     },
     install_requires = [
+        'flask',
+        'python-dotenv',
         'Click',
         'colorama',
     ],
