@@ -1,28 +1,10 @@
 import venv
-import shutil
-import subprocess
+from .utils import execute
 
 
 def venv_pip(args, venv_path, debug=False):
     commands = ['{}/bin/pip'.format(venv_path)] + args.split(' ')
-    if not debug:
-        return subprocess.check_output(commands).decode()
-    else:
-        logs = ''
-        with subprocess.Popen(commands, stdout=subprocess.PIPE) as proc:
-            while proc.poll() is None:
-                log = proc.stdout.readline().decode()
-                logs += log
-
-                print(log, end='')
-
-            log = proc.stdout.read().decode()
-            logs += log
-
-            print(log, end='')
-
-            return logs
-
+    return execute(commands, debug=debug)
 
 def setup_venv(venv_path, dependencies=[], debug=False):
     venv_path = str(venv_path)
