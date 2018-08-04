@@ -7,7 +7,7 @@ import os, shutil
 import json
 import re
 
-from .utils import connect_ssh
+from .utils import connect_ssh, remote_exec
 
 
 def setup_remote(SIT_CONFIG, PASSWORD, debug=False):
@@ -24,34 +24,22 @@ def setup_remote(SIT_CONFIG, PASSWORD, debug=False):
         ))
         raise Exception("Can't connect to remote.")
 
-    def remote_exec(command):
-        stdin, stdout, stderr = client.exec_command(command)
-        if not debug:
-            stdout.read().decode()
-        else:
-            while True:
-                stdout_result = stdout.readline()
-                stderr_result = stderr.readline()
-                click.echo(stdout_result, nl=False)
-                click.echo(stderr_result, nl=False)
-                if not (stdout_result or stderr_result):    break
-
     # Create project directory
-    remote_exec('mkdir -p {}'.format(SIT_CONFIG['remote_project_path']))
+    remote_exec(client, 'mkdir -p {}'.format(SIT_CONFIG['remote_project_path']), debug=debug)
 
     # Setup virtualenv
     try:
         if debug: click.echo("Clearning up old virtualenv...")
-        remote_exec('rm -rf {}/venv/'.format(SIT_CONFIG['remote_project_path']))
+        remote_exec(client, 'rm -rf {}/venv/'.format(SIT_CONFIG['remote_project_path']), debug=debug)
 
         if debug: click.echo("Creating new virtualenv...")
-        remote_exec('python3 -m venv {}/venv'.format(SIT_CONFIG['remote_project_path']))
+        remote_exec(client, 'python3 -m venv {}/venv'.format(SIT_CONFIG['remote_project_path']), debug=debug)
 
         click.echo("Installing pip requirements. This might take a couple of minutes.")
-        remote_exec('{}/venv/bin/pip install --upgrade pip setuptools wheel'.format(SIT_CONFIG['remote_project_path']))
-        remote_exec('{}/venv/bin/pip install --upgrade python-dotenv gunicorn'.format(SIT_CONFIG['remote_project_path']))
+        remote_exec(client, '{}/venv/bin/pip install --upgrade pip setuptools wheel'.format(SIT_CONFIG['remote_project_path']), debug=debug)
+        remote_exec(client, '{}/venv/bin/pip install --upgrade python-dotenv gunicorn'.format(SIT_CONFIG['remote_project_path']), debug=debug)
     except:
-        remote_exec('rm -rf {}/venv/'.format(SIT_CONFIG['remote_project_path']))
+        remote_exec(client, 'rm -rf {}/venv/'.format(SIT_CONFIG['remote_project_path']), debug=debug)
         raise Exception("Failed to setup virtualenv.")
 
     # Copy template

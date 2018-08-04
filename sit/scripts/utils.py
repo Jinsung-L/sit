@@ -1,9 +1,13 @@
 import subprocess
 import paramiko
+import os
+
+
+DEVNULL = open(os.devnull, 'w')
 
 def execute(commands, debug=False):
     if not debug:
-        return subprocess.check_output(commands).decode()
+        return subprocess.check_output(commands, stderr=DEVNULL).decode()
     else:
         logs = ''
         with subprocess.Popen(commands, stdout=subprocess.PIPE) as proc:
@@ -35,3 +39,16 @@ def connect_ssh(address, username, password):
         raise e
 
     return client
+
+
+def remote_exec(client, command, debug=False):
+    stdin, stdout, stderr = client.exec_command(command)
+    if not debug:
+        stdout.read().decode()
+    else:
+        while True:
+            stdout_result = stdout.readline()
+            stderr_result = stderr.readline()
+            click.echo(stdout_result, nl=False)
+            click.echo(stderr_result, nl=False)
+            if not (stdout_result or stderr_result):    break

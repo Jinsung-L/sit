@@ -33,7 +33,7 @@ def init(ctx, debug):
     config = {
         'remote_address': REMOTE_ADDRESS,
         'remote_username': REMOTE_USER,
-        'remote_project_path': '~/sit/{}/'.format(PROJECT_NAME),
+        'remote_project_path': '/home/{}/sit/{}/'.format(REMOTE_USER, PROJECT_NAME),
         'remote_setup': False,
     }
 

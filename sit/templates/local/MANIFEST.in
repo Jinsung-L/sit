@@ -1,0 +1,4 @@
+include README.md
+graft {project_name}/static
+graft {project_name}/templates
+global-exclude *.pyc

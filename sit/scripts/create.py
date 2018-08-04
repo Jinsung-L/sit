@@ -50,6 +50,9 @@ def create(ctx, name, debug):
     render_template(PROJECT_PATH / '.env',
         project_name=name
     )
+    render_template(PROJECT_PATH / 'MANIFEST.in',
+        project_name=name
+    )
 
     # Setup virtualenv
     dependencies = ['flask','python-dotenv']
