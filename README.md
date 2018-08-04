@@ -80,7 +80,24 @@ The page will automatically reload if you make changes to the code.
 
 ### `sit init`
 
+Configures your project to be deployed anytime.<br />
+It will ask you some information about your remote server and then save them into `.sit/config.json`.
+
+`.sit` folder contains all the configuration files, built source distributions etc.<br />
+
+You can run this command on previously existing project without any problem, if your flask application is packed into a package, like the one created by `sit create`. [Working with your old projects](#working-with-your-old-projects)
+
 ### `sit deploy`
+
+Deploys your flask application to the remote server.<br />
+If you run this command for the first time, it will automatically set up the remote server too.
+
+After then, your flask application is online!
+
+### `sit setup`
+
+Sets up the remote server to be ready for deployment.<br />
+Since `sit deploy` sets up the server too when it's called for the first time, it won't be necessary in usual cases. But you can do it anyway if you want.
 
 ### Working with your application
 

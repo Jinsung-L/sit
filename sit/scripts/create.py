@@ -5,18 +5,7 @@ from pathlib import Path
 import re
 
 from .setup_venv import setup_venv, venv_pip
-
-
-def render_template(filepath, **kwargs):
-    with open(filepath) as file:
-        content = file.read()
-
-    new_content = content
-    for key, value in kwargs.items():
-        new_content = re.sub(r'{{{}}}'.format(key), value, new_content)
-
-    with open(filepath, 'w') as file:
-        file.write(new_content)
+from .utils import render_template
 
 
 @click.command()

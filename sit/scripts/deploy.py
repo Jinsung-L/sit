@@ -8,7 +8,7 @@ import json
 import re
 
 from .setup import setup_remote
-from .utils import execute, connect_ssh, remote_exec
+from .utils import execute, connect_ssh, remote_exec, remote_sudo
 
 
 @click.command()
@@ -63,16 +63,13 @@ def deploy(ctx, dist_version, debug):
 
     # Check if remote server is setup
     if not SIT_CONFIG['remote_setup']:
-        click.echo("Remote server {server} is not setup. Setting up now...".format(
+        click.echo("Remote server {server} is not set up. Setting up now...".format(
             server=click.style(SIT_CONFIG['remote_address'], 'cyan')
         ))
 
-        # Update config
+        # Setup remote
         try:
             SIT_CONFIG['remote_setup'] = setup_remote(SIT_CONFIG, PASSWORD, debug=DEBUG)
-
-            with open(SIT_PATH / 'config.json', 'w') as file:
-                json.dump(SIT_CONFIG, file, indent=4)
         except Exception as e:
             traceback.print_exc()
             click.echo("{error} Failed setting up {addr}".format(
@@ -80,6 +77,10 @@ def deploy(ctx, dist_version, debug):
                 addr=click.style(SIT_CONFIG['remote_address'], 'cyan'),
             ))
             ctx.exit()
+
+        # Update config
+        with open(SIT_PATH / 'config.json', 'w') as file:
+            json.dump(SIT_CONFIG, file, indent=4)
 
     # Build source distribution
     if dist_version is None:
@@ -119,13 +120,61 @@ def deploy(ctx, dist_version, debug):
         dist_path=str(remote_dist_dir / build_filename)
     ), debug=debug)
 
+    # Config Supervisor
 
+    # Read project config
+    with open(str(SIT_PATH / 'supervisord.conf')) as file:
+        project_supervisord_conf = file.read()
+
+    # Read remote config
+    supervisord_conf_path = '/etc/supervisor/supervisord.conf'
+    with sftp.open(supervisord_conf_path) as file:
+        supervisord_conf = file.read().decode()
+
+    # Modify remote config with local project config
+    re_supervisor = r'^\[program:{project_name}\]\n(^.*\n)*?\n'.format(project_name=PROJECT_NAME)
+    re_supervisor = re.compile(re_supervisor, re.MULTILINE)
+
+    if re.search(re_supervisor, supervisord_conf):
+        new_supervisord_conf = re.sub(re_supervisor, project_supervisord_conf, supervisord_conf)
+    else:
+        new_supervisord_conf = "{}\n{}".format(supervisord_conf, project_supervisord_conf)
+
+    # Push temporary config file conatining new config
+    temp_supervisord_conf_path = '{}/supervisord.conf'.format(SIT_CONFIG['remote_project_path'])
+    with sftp.open(temp_supervisord_conf_path, 'w') as file:
+        file.write(new_supervisord_conf)
+
+    # sudo copy temp config file to /etc/supervisor/supervisord.conf
+    command = 'sudo cp {} {}'.format(temp_supervisord_conf_path, supervisord_conf_path)
+    remote_sudo(client, command, PASSWORD, debug=DEBUG)
+
+    # Remote temp config file
+    sftp.remove(temp_supervisord_conf_path)
+
+    # Restart Supervisor
+    remote_sudo(client, 'sudo supervisorctl reread', PASSWORD, debug=DEBUG)
+    remote_sudo(client, 'sudo service supervisor restart', PASSWORD, debug=DEBUG)
+
+    # Update sit config
     SIT_CONFIG['head'] = build_version
     with open(SIT_PATH / 'config.json', 'w') as file:
         json.dump(SIT_CONFIG, file, indent=4)
 
 
-#     success_message = """
-# """.format(
-#     )
-#     click.echo(success_message)
+    app_url = "http://{}:{}/".format(SIT_CONFIG['remote_address'], SIT_CONFIG['gunicorn_port'])
+
+    success_message = """
+Success! Deployed {version} to {server}
+You can now view {project_name} in the browser.
+
+  {app_url}
+
+Happy hacking!""".format(
+        version=click.style(build_version, 'green'),
+        server=click.style(SIT_CONFIG['remote_address'], 'cyan'),
+        project_name=click.style(PROJECT_NAME, 'green'),
+        # TODO: Drop the port after support of nginx
+        app_url=click.style(app_url, underline=True)
+    )
+    click.echo(success_message)

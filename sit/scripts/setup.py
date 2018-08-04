@@ -7,7 +7,7 @@ import os, shutil
 import json
 import re
 
-from .utils import connect_ssh, remote_exec
+from .utils import connect_ssh, remote_exec, remote_sudo
 
 
 def setup_remote(SIT_CONFIG, PASSWORD, debug=False):
@@ -27,20 +27,31 @@ def setup_remote(SIT_CONFIG, PASSWORD, debug=False):
     # Create project directory
     remote_exec(client, 'mkdir -p {}'.format(SIT_CONFIG['remote_project_path']), debug=debug)
 
+    # Install Ubuntu packages through APT
+    try:
+        click.echo("Installing required ubuntu packages. This might take a couple of minutes...")
+        remote_sudo(client, 'sudo apt update', PASSWORD, debug=debug)
+        remote_sudo(client, 'sudo apt install python3', PASSWORD, debug=debug)
+        remote_sudo(client, 'sudo apt install python3-pip', PASSWORD, debug=debug)
+        remote_sudo(client, 'sudo apt install supervisor', PASSWORD, debug=debug)
+    except:
+        raise Exception("Failed to install ubuntu packages.")
+
     # Setup virtualenv
     try:
-        if debug: click.echo("Clearning up old virtualenv...")
         remote_exec(client, 'rm -rf {}/venv/'.format(SIT_CONFIG['remote_project_path']), debug=debug)
 
         if debug: click.echo("Creating new virtualenv...")
         remote_exec(client, 'python3 -m venv {}/venv'.format(SIT_CONFIG['remote_project_path']), debug=debug)
 
-        click.echo("Installing pip requirements. This might take a couple of minutes.")
-        remote_exec(client, '{}/venv/bin/pip install --upgrade pip setuptools wheel'.format(SIT_CONFIG['remote_project_path']), debug=debug)
+        click.echo("Installing pip requirements. This might take a couple of minutes...")
+        remote_exec(client, '{}/venv/bin/pip install --upgrade pip'.format(SIT_CONFIG['remote_project_path']), debug=debug)
+        remote_exec(client, '{}/venv/bin/pip install --upgrade setuptools'.format(SIT_CONFIG['remote_project_path']), debug=debug)
+        remote_exec(client, '{}/venv/bin/pip install --upgrade wheel'.format(SIT_CONFIG['remote_project_path']), debug=debug)
         remote_exec(client, '{}/venv/bin/pip install --upgrade python-dotenv gunicorn'.format(SIT_CONFIG['remote_project_path']), debug=debug)
     except:
         remote_exec(client, 'rm -rf {}/venv/'.format(SIT_CONFIG['remote_project_path']), debug=debug)
-        raise Exception("Failed to setup virtualenv.")
+        raise Exception("Failed to set up virtualenv.")
 
     # Copy template
 
@@ -76,9 +87,9 @@ def setup(ctx, debug):
     with open(SIT_PATH / 'config.json') as file:
         SIT_CONFIG = json.load(file)
 
-    # Check if remote server is setup
+    # Check if remote server is set up
     if SIT_CONFIG['remote_setup']:
-        click.confirm('Remote server is already setup. Do you want to proceed it anyway?', abort=True)
+        click.confirm('Remote server is already set up. Do you want to proceed it anyway?', abort=True)
 
     click.echo("Setting up remote server: {addr}".format(
         addr=click.style(SIT_CONFIG['remote_address'], 'cyan')
@@ -105,12 +116,9 @@ def setup(ctx, debug):
         ))
         ctx.exit()
 
-    # Update config
+    # Setup remote
     try:
         SIT_CONFIG['remote_setup'] = setup_remote(SIT_CONFIG, PASSWORD, debug=DEBUG)
-
-        with open(SIT_PATH / 'config.json', 'w') as file:
-            json.dump(SIT_CONFIG, file, indent=4)
     except Exception as e:
         traceback.print_exc()
         click.echo("{error} Failed setting up {addr}".format(
@@ -119,8 +127,12 @@ def setup(ctx, debug):
         ))
         ctx.exit()
 
+    # Update config
+    with open(SIT_PATH / 'config.json', 'w') as file:
+        json.dump(SIT_CONFIG, file, indent=4)
+
     success_message = """
-Successfuly setup the remote server {server}
+Successfuly set up the remote server {server}
 at {server}:{path}
 
 Now you can deploy your application:
