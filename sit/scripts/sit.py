@@ -16,8 +16,12 @@ def cli(ctx, debug):
 
 from .create import create
 from .init import init
+from .setup import setup
+from .deploy import deploy
 cli.add_command(create)
 cli.add_command(init)
+cli.add_command(setup)
+cli.add_command(deploy)
 
 
 if __name__ == '__main__':

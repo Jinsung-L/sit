@@ -33,7 +33,7 @@ def init(ctx, debug):
     config = {
         'remote_address': REMOTE_ADDRESS,
         'remote_username': REMOTE_USER,
-        'remote_project_path': '~/sit/{}'.format(PROJECT_NAME),
+        'remote_project_path': '~/sit/{}/'.format(PROJECT_NAME),
         'remote_setup': False,
     }
 
@@ -64,8 +64,7 @@ Now you can make your first deployment
     Deploys the application to the production server.
 
 This will setup the remote server at the first run.
-After then, it'll just deploy your application.
-""".format(
+After then, it'll just deploy your application.""".format(
         sit=click.style('sit', 'cyan'),
         project_name=click.style(PROJECT_NAME, 'green'),
         config_path=click.style(str(CONFIG_PATH), 'green'),

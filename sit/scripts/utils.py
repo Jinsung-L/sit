@@ -1,4 +1,5 @@
 import subprocess
+import paramiko
 
 def execute(commands, debug=False):
     if not debug:
@@ -18,3 +19,19 @@ def execute(commands, debug=False):
             print(log, end='')
 
             return logs
+
+
+def connect_ssh(address, username, password):
+    # Make SSH connection
+    client = paramiko.SSHClient()
+    client.load_system_host_keys()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    try:
+        client.connect(address, username=username, password=password)
+    except Exception as e:
+        if DEBUG:
+            traceback.print_exc()
+        raise e
+
+    return client

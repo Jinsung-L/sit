@@ -17,6 +17,7 @@ setup(
         'python-dotenv',
         'Click',
         'colorama',
+        'paramiko',
     ],
     include_package_data=True,
     zip_safe=False
