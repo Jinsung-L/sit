@@ -46,18 +46,10 @@ def init(ctx, debug):
     with open(str(CONFIG_PATH), 'w') as file:
         json.dump(config, file, indent=4)
 
-    # Copy and Render supervisord.conf
+    # Copy supervisord.conf
     shutil.copyfile(
         MODULE_PATH / 'templates/sit/supervisord.conf',
         SIT_PATH / 'supervisord.conf'
-    )
-
-    render_template(SIT_PATH / 'supervisord.conf',
-        project_name=PROJECT_NAME,
-        project_path=config['remote_project_path'],
-        gunicorn=str(Path(config['remote_project_path']) / 'venv/bin/gunicorn'),
-        gunicorn_host=config['gunicorn_host'],
-        gunicorn_port=str(config['gunicorn_port'])
     )
 
     # Append .gitignore

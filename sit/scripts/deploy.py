@@ -5,7 +5,7 @@ import json
 import re
 
 from .setup import setup_remote
-from .utils import execute, connect_ssh, remote_exec, remote_sudo
+from .utils import execute, connect_ssh, remote_exec, remote_sudo, render_template
 
 
 @click.command()
@@ -122,6 +122,16 @@ def deploy(ctx, dist_version, debug):
     # Read project config
     with open(str(SIT_PATH / 'supervisord.conf')) as file:
         project_supervisord_conf = file.read()
+
+    # Render
+    project_supervisord_conf = render_template(SIT_PATH / 'supervisord.conf', save_file=False,
+        project_name=PROJECT_NAME,
+        project_path=SIT_CONFIG['remote_project_path'],
+        gunicorn=str(Path(SIT_CONFIG['remote_project_path']) / 'venv/bin/gunicorn'),
+        gunicorn_host=SIT_CONFIG['gunicorn_host'],
+        gunicorn_port=str(SIT_CONFIG['gunicorn_port'])
+    )
+
 
     # Read remote config
     supervisord_conf_path = '/etc/supervisor/supervisord.conf'

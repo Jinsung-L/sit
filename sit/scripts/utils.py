@@ -66,7 +66,7 @@ def remote_sudo(client, command, password, debug=False):
 
 
 
-def render_template(filepath, **kwargs):
+def render_template(filepath, save_file=True, **kwargs):
     with open(filepath) as file:
         content = file.read()
 
@@ -74,5 +74,8 @@ def render_template(filepath, **kwargs):
     for key, value in kwargs.items():
         new_content = re.sub(r'{{{}}}'.format(key), value, new_content)
 
-    with open(filepath, 'w') as file:
-        file.write(new_content)
+    if save_file:
+        with open(filepath, 'w') as file:
+            file.write(new_content)
+
+    return new_content
