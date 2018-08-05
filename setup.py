@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='sit',
+    name='sitmango',
     version='0.1.0',
     description='Simple deployment for Flask micro web service',
     url='https://github.com/Jinsung-L/sit/',
