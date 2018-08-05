@@ -1,9 +1,6 @@
 import click
-import paramiko
-import subprocess
 from pathlib import Path
 import traceback
-import os, shutil
 import json
 import re
 

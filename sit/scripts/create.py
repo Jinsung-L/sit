@@ -1,8 +1,6 @@
 import click
-import subprocess
-import os, shutil
+import shutil
 from pathlib import Path
-import re
 
 from .setup_venv import setup_venv, venv_pip
 from .utils import render_template
