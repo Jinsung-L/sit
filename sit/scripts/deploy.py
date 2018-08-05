@@ -129,13 +129,18 @@ def deploy(ctx, dist_version, debug):
         supervisord_conf = file.read().decode()
 
     # Modify remote config with local project config
-    re_supervisor = r'^\[program:{project_name}\]\n(^.*\n)*?\n'.format(project_name=PROJECT_NAME)
-    re_supervisor = re.compile(re_supervisor, re.MULTILINE)
+    try:
+        lines = supervisord_conf.splitlines()
+        start = lines.index('[program:{}]'.format(PROJECT_NAME))
 
-    if re.search(re_supervisor, supervisord_conf):
-        new_supervisord_conf = re.sub(re_supervisor, project_supervisord_conf, supervisord_conf)
-    else:
-        new_supervisord_conf = "{}\n{}".format(supervisord_conf, project_supervisord_conf)
+        try:
+            end = lines.index('', start)
+        except ValueError:
+            end = len(lines)
+
+        new_supervisord_conf = '\n'.join(lines[:start] + project_supervisord_conf.splitlines() + lines[end:])
+    except ValueError:
+        new_supervisord_conf = supervisord_conf + '\n' + project_supervisord_conf
 
     # Push temporary config file conatining new config
     temp_supervisord_conf_path = '{}/supervisord.conf'.format(SIT_CONFIG['remote_project_path'])
@@ -146,7 +151,7 @@ def deploy(ctx, dist_version, debug):
     command = 'sudo cp {} {}'.format(temp_supervisord_conf_path, supervisord_conf_path)
     remote_sudo(client, command, PASSWORD, debug=DEBUG)
 
-    # Remote temp config file
+    # Remove temp config file
     sftp.remove(temp_supervisord_conf_path)
 
     # Restart Supervisor
