@@ -4,7 +4,7 @@ setup(
     name='sit',
     version='0.1.0',
     description='Simple deployment for Flask micro web service',
-    url='https://github.com/jinsung-l/sit/',
+    url='https://github.com/Jinsung-L/sit/',
     author='Jinsung Lim',
     author_email='js99028@gmail.com',
     license='MIT',
