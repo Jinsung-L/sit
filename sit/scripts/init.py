@@ -76,7 +76,7 @@ Initiated {sit} for {project_name}
 Configuration file is created at {config_path}
 You can manually configure this file.
 
-Now you can make your first deployment
+Now you can make your first deployment by running:
 
   {sit_deploy}
     Deploys the application to the production server.

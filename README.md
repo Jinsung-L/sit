@@ -99,6 +99,16 @@ After then, your flask application is online!
 Sets up the remote server to be ready for deployment.<br />
 Since `sit deploy` sets up the server too when it's called for the first time, it won't be necessary in usual cases. But you can do it anyway if you want.
 
+### `sit delete`
+
+Deletes and cleans up your project from the remote server completely.<br />
+But it doesn't uninstall the Ubuntu's package installations (python3, python3-virtualenv, python3-pip, supervisor) because some other projects may depend on them too.<br />
+
+It will remove your project directory from the remote server and erase server configurations that are only for your project.
+
+It doesn't remove the local project directory's `.sit` folder though, so you can re-deploy the application with the same configurations just by running `sit deploy` again, it will work just as it was before.
+
+
 ### Working with your application
 
 Although you can run `flask run` command without having to activate the `venv` `sit` created inside your project folder, we recommend you to activate the `venv` inside the project folder when you're developing your application.<br />

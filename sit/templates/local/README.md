@@ -1,8 +1,3 @@
-This project was bootstrapped with [Sit]().
+This project was bootstrapped with [`Sit`](https://github.com/Jinsung-L/sit/).
 
-Below you will find some information on how to perform common tasks.<br>
-You can find the most recent version of this guide [here]().
-
-## Table of Contents
-
-- [Something](#something)
+You can find some help and guide at [here](https://github.com/Jinsung-L/sit/)

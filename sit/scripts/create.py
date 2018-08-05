@@ -46,7 +46,7 @@ def create(ctx, name, debug):
     package_names = ', '.join(map(lambda x: click.style(x, fg='cyan'), dependencies[:-1]))
     package_names += ', and {}'.format(click.style(dependencies[-1], 'cyan'))
 
-    click.echo("Installing packages. This might take a couple of minutes.")
+    click.echo("Installing packages. This might take a couple of minutes...")
     click.echo("Installing {}...".format(package_names))
 
     venv_path = PROJECT_PATH / 'venv'

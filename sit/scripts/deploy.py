@@ -111,7 +111,7 @@ def deploy(ctx, dist_version, debug):
     )
 
     # Install distribution
-    click.echo("Installing dependencies. This might take a couple of minutes")
+    click.echo("Installing dependencies. This might take a couple of minutes...")
     remote_exec(client, '{remote_path}/venv/bin/pip install --upgrade {dist_path}'.format(
         remote_path=SIT_CONFIG['remote_project_path'],
         dist_path=str(remote_dist_dir / build_filename)
