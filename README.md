@@ -14,6 +14,12 @@ sit deploy
 Then open [your server address] to see your app.<br />
 Next time you want to deploy with some modification just run `sit deploy` and you're done.
 
+## Prerequisites
+
+* `sit` only supports `python3`.
+* `sit` assumes your remote server has Debian GNU/Linux based OS.
+* Your remote user must be a sudoer.
+
 ## Installation
 
 ```sh
