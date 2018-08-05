@@ -140,4 +140,4 @@ As long as they are packed in a package, you can `sit init` and then `sit deploy
 
 ## License
 
-Sit is open source software [licensed as MIT]()
+Sit is open source software [licensed as MIT](https://github.com/Jinsung-L/sit/blob/master/LICENSE)
