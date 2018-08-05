@@ -23,7 +23,7 @@ Next time you want to deploy with some modification just run `sit deploy` and yo
 ## Installation
 
 ```sh
-pip install sit
+pip install git+https://github.com/Jinsung-L/sit.git
 ```
 
 `sit` works fine as long as it is included in your `$PATH` but if you're not familiar with this concept, you'll find it most comfortable to just install it globally.
