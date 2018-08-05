@@ -8,7 +8,10 @@ setup(
     author='Jinsung Lim',
     author_email='js99028@gmail.com',
     license='MIT',
-    packages=['sit'],
+    packages=[
+        'sit',
+        'sit.scripts',
+    ],
     entry_points = {
         'console_scripts': ['sit=sit.scripts.sit:cli'],
     },
