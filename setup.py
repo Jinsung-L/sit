@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='sitmango',
-    version='0.1.1',
+    version='0.1.2',
     description='Simple deployment for Flask micro web service',
     url='https://github.com/Jinsung-L/sit/',
     author='Jinsung Lim',
@@ -13,7 +13,7 @@ setup(
         'sitmango.scripts',
     ],
     entry_points = {
-        'console_scripts': ['sit=sit.scripts.sit:cli'],
+        'console_scripts': ['sit=sitmango.scripts.sit:cli'],
     },
     install_requires = [
         'flask',
