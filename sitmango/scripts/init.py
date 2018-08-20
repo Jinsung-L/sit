@@ -23,6 +23,17 @@ def init(ctx, debug):
         click.echo(click.style('ERROR: ', 'red')+"There is no python package found in this directory.")
         ctx.exit()
 
+    # Check if project initiated
+    SIT_PATH = PROJECT_PATH / '.sit'
+    if SIT_PATH.is_dir():
+        # Load config
+        with open(SIT_PATH / 'config.json') as file:
+            SIT_CONFIG = json.load(file)
+
+        # Check if remote server is set up
+        if SIT_CONFIG['remote_setup']:
+            click.confirm('Remote server is already set up. Do you want to proceed it anyway?', abort=True)
+
     REMOTE_ADDRESS = click.prompt('Remote server address', type=str)
     REMOTE_USER = click.prompt('Remote user', type=str)
 
