@@ -36,7 +36,7 @@ def setup_remote(SIT_CONFIG, PASSWORD, debug=False):
 
     # Setup virtualenv
     try:
-        remote_exec(client, 'rm -rf {}/venv/'.format(SIT_CONFIG['remote_project_path']), debug=debug)
+        remote_exec(client, 'rm -rf {}/venv'.format(SIT_CONFIG['remote_project_path']), debug=debug)
 
         if debug: click.echo("Creating new virtualenv...")
         remote_exec(client, 'python3 -m venv {}/venv'.format(SIT_CONFIG['remote_project_path']), debug=debug)
@@ -47,7 +47,7 @@ def setup_remote(SIT_CONFIG, PASSWORD, debug=False):
         remote_exec(client, '{}/venv/bin/pip install --upgrade wheel'.format(SIT_CONFIG['remote_project_path']), debug=debug)
         remote_exec(client, '{}/venv/bin/pip install --upgrade python-dotenv gunicorn'.format(SIT_CONFIG['remote_project_path']), debug=debug)
     except:
-        remote_exec(client, 'rm -rf {}/venv/'.format(SIT_CONFIG['remote_project_path']), debug=debug)
+        remote_exec(client, 'rm -rf {}/venv'.format(SIT_CONFIG['remote_project_path']), debug=debug)
         raise Exception("Failed to set up virtualenv.")
 
     # Copy template

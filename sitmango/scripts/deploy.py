@@ -174,7 +174,7 @@ def deploy(ctx, dist_version, debug):
         json.dump(SIT_CONFIG, file, indent=4)
 
 
-    app_url = "http://{}:{}/".format(SIT_CONFIG['remote_address'], SIT_CONFIG['gunicorn_port'])
+    app_url = "http://{}:{}".format(SIT_CONFIG['remote_address'], SIT_CONFIG['gunicorn_port'])
 
     success_message = """
 Success! Deployed {version} to {server}
