@@ -7,19 +7,7 @@ import re
 from .utils import connect_ssh, remote_exec, remote_sudo
 
 
-def setup_remote(SIT_CONFIG, PASSWORD, debug=False):
-    try:
-        client = connect_ssh(
-            address=SIT_CONFIG['remote_address'],
-            username=SIT_CONFIG['remote_username'],
-            password=PASSWORD
-        )
-    except:
-        click.echo("{error} Can't connect to {addr}".format(
-        error=click.style('ERROR:', 'red'),
-        addr=click.style(SIT_CONFIG['remote_address'], 'cyan'),
-        ))
-        raise Exception("Can't connect to remote.")
+def setup_remote(SIT_CONFIG, client, PASSWORD, debug=False):
 
     # Create project directory
     remote_exec(client, 'mkdir -p {}'.format(SIT_CONFIG['remote_project_path']), debug=debug)
@@ -27,10 +15,11 @@ def setup_remote(SIT_CONFIG, PASSWORD, debug=False):
     # Install Ubuntu packages through APT
     try:
         click.echo("Installing required ubuntu packages. This might take a couple of minutes...")
-        remote_sudo(client, 'sudo apt update', PASSWORD, debug=debug)
-        remote_sudo(client, 'sudo apt install python3', PASSWORD, debug=debug)
-        remote_sudo(client, 'sudo apt install python3-pip', PASSWORD, debug=debug)
-        remote_sudo(client, 'sudo apt install supervisor', PASSWORD, debug=debug)
+        remote_sudo(client, 'sudo apt-get update', PASSWORD, debug=debug)
+        remote_sudo(client, 'sudo apt-get install python3 -y', PASSWORD, debug=debug)
+        remote_sudo(client, 'sudo apt-get install python3-pip -y', PASSWORD, debug=debug)
+        remote_sudo(client, 'sudo apt-get install python3-venv -y', PASSWORD, debug=debug)
+        remote_sudo(client, 'sudo apt-get install supervisor -y', PASSWORD, debug=debug)
     except:
         raise Exception("Failed to install ubuntu packages.")
 
@@ -56,9 +45,10 @@ def setup_remote(SIT_CONFIG, PASSWORD, debug=False):
 
 
 @click.command()
+@click.option('--identify_file', '-i')
 @click.option('--debug/--no-debug', default=False)
 @click.pass_context
-def setup(ctx, debug):
+def setup(ctx, identify_file, debug):
     """Setup remote server."""
     DEBUG = ctx.obj['DEBUG'] or debug
     MODULE_PATH = ctx.obj['MODULE_PATH']
@@ -92,11 +82,14 @@ def setup(ctx, debug):
         addr=click.style(SIT_CONFIG['remote_address'], 'cyan')
     ))
 
-    # Input password
-    PASSWORD = click.prompt("{user}@{addr}'s password".format(
-        user=SIT_CONFIG['remote_username'],
-        addr=SIT_CONFIG['remote_address'],
-    ), hide_input=True)
+    if identify_file is None:
+        # Input password
+        PASSWORD = click.prompt("{user}@{addr}'s password".format(
+            user=SIT_CONFIG['remote_username'],
+            addr=SIT_CONFIG['remote_address'],
+        ), hide_input=True)
+    else:
+        PASSWORD = None
 
 
     # Make SSH connection
@@ -104,7 +97,8 @@ def setup(ctx, debug):
         client = connect_ssh(
             address=SIT_CONFIG['remote_address'],
             username=SIT_CONFIG['remote_username'],
-            password=PASSWORD
+            password=PASSWORD,
+            key_filename=identify_file
         )
     except:
         click.echo("{error} Can't connect to {addr}".format(
@@ -115,7 +109,7 @@ def setup(ctx, debug):
 
     # Setup remote
     try:
-        SIT_CONFIG['remote_setup'] = setup_remote(SIT_CONFIG, PASSWORD, debug=DEBUG)
+        SIT_CONFIG['remote_setup'] = setup_remote(SIT_CONFIG, client, PASSWORD, debug=DEBUG)
     except Exception as e:
         traceback.print_exc()
         click.echo("{error} Failed setting up {addr}".format(

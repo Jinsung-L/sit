@@ -27,14 +27,16 @@ def execute(commands, debug=False):
             return logs
 
 
-def connect_ssh(address, username, password):
+def connect_ssh(address, username, password=None, key_filename=None):
+    assert password is not None or key_filename is not None, "Either `password` or `key_filename` mute be provided."
+
     # Make SSH connection
     client = paramiko.SSHClient()
     client.load_system_host_keys()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     try:
-        client.connect(address, username=username, password=password)
+        client.connect(address, username=username, password=password, key_filename=key_filename)
     except Exception as e:
         if DEBUG:
             traceback.print_exc()
@@ -56,7 +58,10 @@ def remote_exec(client, command, debug=False):
             if not (stdout_result or stderr_result):    break
 
 
-def remote_sudo(client, command, password, debug=False):
+def remote_sudo(client, command, password=None, debug=False):
+    if password is None:
+        return remote_exec(client, command, debug=debug)
+
     stdin, stdout, stderr = client.exec_command(command, get_pty=True)
     stdin.write('{}\n'.format(password))
     stdin.flush()

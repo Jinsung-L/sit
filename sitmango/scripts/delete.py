@@ -8,9 +8,10 @@ from .utils import connect_ssh, remote_exec, remote_sudo
 
 
 @click.command()
+@click.option('--identify_file', '-i')
 @click.option('--debug/--no-debug', default=False)
 @click.pass_context
-def delete(ctx, debug):
+def delete(ctx, identify_file, debug):
     """Delete project from remote server."""
     DEBUG = ctx.obj['DEBUG'] or debug
     MODULE_PATH = ctx.obj['MODULE_PATH']
@@ -36,18 +37,22 @@ def delete(ctx, debug):
     with open(SIT_PATH / 'config.json') as file:
         SIT_CONFIG = json.load(file)
 
-    # Input password
-    PASSWORD = click.prompt("{user}@{addr}'s password".format(
-        user=SIT_CONFIG['remote_username'],
-        addr=SIT_CONFIG['remote_address'],
-    ), hide_input=True)
+    if identify_file is None:
+        # Input password
+        PASSWORD = click.prompt("{user}@{addr}'s password".format(
+            user=SIT_CONFIG['remote_username'],
+            addr=SIT_CONFIG['remote_address'],
+        ), hide_input=True)
+    else:
+        PASSWORD = None
 
     # Make SSH connection
     try:
         client = connect_ssh(
             address=SIT_CONFIG['remote_address'],
             username=SIT_CONFIG['remote_username'],
-            password=PASSWORD
+            password=PASSWORD,
+            key_filename=identify_file
         )
         sftp = client.open_sftp()
     except:

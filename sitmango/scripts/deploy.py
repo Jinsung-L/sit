@@ -10,9 +10,10 @@ from .utils import execute, connect_ssh, remote_exec, remote_sudo, render_templa
 
 @click.command()
 @click.option('--dist-version')
+@click.option('--identify_file', '-i')
 @click.option('--debug/--no-debug', default=False)
 @click.pass_context
-def deploy(ctx, dist_version, debug):
+def deploy(ctx, dist_version, identify_file, debug):
     """Deploy to the remote server."""
     DEBUG = ctx.obj['DEBUG'] or debug
     MODULE_PATH = ctx.obj['MODULE_PATH']
@@ -38,18 +39,22 @@ def deploy(ctx, dist_version, debug):
     with open(SIT_PATH / 'config.json') as file:
         SIT_CONFIG = json.load(file)
 
-    # Input password
-    PASSWORD = click.prompt("{user}@{addr}'s password".format(
-        user=SIT_CONFIG['remote_username'],
-        addr=SIT_CONFIG['remote_address'],
-    ), hide_input=True)
+    if identify_file is None:
+        # Input password
+        PASSWORD = click.prompt("{user}@{addr}'s password".format(
+            user=SIT_CONFIG['remote_username'],
+            addr=SIT_CONFIG['remote_address'],
+        ), hide_input=True)
+    else:
+        PASSWORD = None
 
     # Make SSH connection
     try:
         client = connect_ssh(
             address=SIT_CONFIG['remote_address'],
             username=SIT_CONFIG['remote_username'],
-            password=PASSWORD
+            password=PASSWORD,
+            key_filename=identify_file
         )
     except:
         click.echo("{error} Can't connect to {addr}".format(
@@ -66,7 +71,7 @@ def deploy(ctx, dist_version, debug):
 
         # Setup remote
         try:
-            SIT_CONFIG['remote_setup'] = setup_remote(SIT_CONFIG, PASSWORD, debug=DEBUG)
+            SIT_CONFIG['remote_setup'] = setup_remote(SIT_CONFIG, client, PASSWORD, debug=DEBUG)
         except Exception as e:
             traceback.print_exc()
             click.echo("{error} Failed setting up {addr}".format(
