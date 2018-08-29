@@ -130,11 +130,14 @@ def deploy(ctx, dist_version, identify_file, debug):
 
     # Render
     project_supervisord_conf = render_template(SIT_PATH / 'supervisord.conf', save_file=False,
+        remote_username=SIT_CONFIG['remote_username'],
         project_name=PROJECT_NAME,
         project_path=SIT_CONFIG['remote_project_path'],
         gunicorn=str(Path(SIT_CONFIG['remote_project_path']) / 'venv/bin/gunicorn'),
         gunicorn_host=SIT_CONFIG['gunicorn_host'],
-        gunicorn_port=str(SIT_CONFIG['gunicorn_port'])
+        gunicorn_port=str(SIT_CONFIG['gunicorn_port']),
+        gunicorn_user=SIT_CONFIG['gunicorn_user'],
+        gunicorn_group=SIT_CONFIG['gunicorn_group'],
     )
 
 
@@ -179,7 +182,10 @@ def deploy(ctx, dist_version, identify_file, debug):
         json.dump(SIT_CONFIG, file, indent=4)
 
 
-    app_url = "http://{}:{}".format(SIT_CONFIG['remote_address'], SIT_CONFIG['gunicorn_port'])
+    if SIT_CONFIG['server_name']:
+        app_url = SIT_CONFIG['server_name']
+    else:
+        app_url = "http://{}:{}".format(SIT_CONFIG['remote_address'], SIT_CONFIG['gunicorn_port'])
 
     success_message = """
 Success! Deployed {version} to {server}

@@ -50,6 +50,9 @@ def init(ctx, debug):
         # TODO: Update this to 'localhost' after support of nginx
         'gunicorn_host': '0.0.0.0',
         'gunicorn_port': 8000,
+        'gunicorn_user': REMOTE_USER,
+        'gunicorn_group': REMOTE_USER,
+        'server_name': '',
     }
 
     CONFIG_PATH = SIT_PATH / 'config.json'
